@@ -66,7 +66,7 @@ async function checkUser({ env, request, url, authCodeConfigured, userAuthCode }
 
     // authCode
     if (!authCodeConfigured) {
-        return AUTHORIZED('user'); // 未配置用户认证，视为用户身份放行
+        return AUTHORIZED('guest'); // 未配置用户认证，视为游客身份放行
     }
 
     if (url) {
