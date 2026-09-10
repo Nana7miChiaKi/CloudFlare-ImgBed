@@ -1,4 +1,5 @@
 import { userAuthCheck, UnauthorizedResponse } from "../utils/auth/userAuth";
+import { authenticate, AUTH_SCOPE } from "../utils/auth/authCore.js";
 import { fetchUploadConfig, fetchSecurityConfig, fetchPageConfig } from "../utils/sysConfig";
 import {
     createResponse, getUploadIp, getIPAddress, resolveFileExt,
@@ -31,8 +32,22 @@ export async function onRequest(context) {  // Contents of context object
 
     // 鉴权
     const requiredPermission = 'upload';
-    if (!await userAuthCheck(env, url, request, requiredPermission)) {
+    const authResult = await authenticate({
+        env,
+        request,
+        url,
+        requiredPermission,
+        authScope: AUTH_SCOPE.USER,
+    });
+    if (!authResult.authorized) {
         return UnauthorizedResponse('Unauthorized');
+    }
+
+    // 游客只能上传到固定目录；直接在服务端重写 URL 参数，覆盖所有
+    // 非分块、分块初始化、分块上传和分块合并流程。
+    const GUEST_UPLOAD_FOLDER = '上传';
+    if (authResult.authType === 'guest') {
+        url.searchParams.set('uploadFolder', GUEST_UPLOAD_FOLDER);
     }
 
     // 获得上传IP
