@@ -45,7 +45,7 @@ export async function onRequest(context) {  // Contents of context object
 
     // 游客只能上传到固定目录；直接在服务端重写 URL 参数，覆盖所有
     // 非分块、分块初始化、分块上传和分块合并流程。
-    const GUEST_UPLOAD_FOLDER = '上传';
+    const GUEST_UPLOAD_FOLDER = 'public';
     if (authResult.authType === 'guest') {
         url.searchParams.set('uploadFolder', GUEST_UPLOAD_FOLDER);
     }
